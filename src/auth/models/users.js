@@ -4,9 +4,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const userSchema = (sequelize, DataTypes) => {
-  const model = sequelize.define('User', {
+  const User = sequelize.define('User', {
     username: { type: DataTypes.STRING, allowNull: false, unique: true },
-    password: { type: DataTypes.STRING, allowNull: false, },
+    password: { type: DataTypes.STRING, allowNull: false },
+    
     token: {
       type: DataTypes.VIRTUAL,
       get() {
@@ -15,13 +16,13 @@ const userSchema = (sequelize, DataTypes) => {
     }
   });
 
-  model.beforeCreate(async (user) => {
+  User.beforeCreate(async (user) => {
     let hashedPass = bcrypt.hash(user.password, 10);
     user.password = hashedPass;
   });
 
   // Basic AUTH: Validating strings (username, password) 
-  model.authenticateBasic = async function (username, password) {
+  User.authenticateBasic = async function (username, password) {
     const user = await this.findOne({ username })
     if (user) {
       const valid = await bcrypt.compare(password, user.password)
@@ -29,11 +30,11 @@ const userSchema = (sequelize, DataTypes) => {
       return user;
     } else {
       throw new Error('Invalid User');
-    } 
+    }
   }
 
   // Bearer AUTH: Validating a token
-  model.authenticateToken = async function (token) {
+  User.authenticateToken = async function (token) {
     try {
       const parsedToken = jwt.verify(token, process.env.SECRET);
       const user = this.findOne({ username: parsedToken.username })
@@ -44,7 +45,7 @@ const userSchema = (sequelize, DataTypes) => {
     }
   }
 
-  return model;
+  return User;
 }
 
 module.exports = userSchema;
