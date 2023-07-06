@@ -1,7 +1,7 @@
 # bearer-auth
 
 ## Deployment URL
-[bearer-auth](https://basicauth-5210.onrender.com)
+[bearer-auth](https://bearer-auth-41cl.onrender.com/)
 
 Author: Mohammad Attallah
 
